@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=80.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "docsource"
+description = "Parse, check and update doc-string documentation"
+readme = { file = "README.md", content-type = "text/markdown" }
+keywords = ["docstring-documentation", "docstring-checker", "python-typing"]
+license = "MIT"
+authors = [
+    { name = "Levente Hunyadi", email = "hunyadi@gmail.com" }
+]
+maintainers = [
+    { name = "Levente Hunyadi", email = "hunyadi@gmail.com" }
+]
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Documentation",
+    "Topic :: Utilities",
+    "Typing :: Typed"
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+    "build >= 1.3",
+    "mypy >= 1.18",
+    "ruff >= 0.14"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/hunyadi/docsource"
+"Source" = "https://github.com/hunyadi/docsource"
+
+[tool.setuptools]
+include-package-data = true
+packages = ["docsource"]
+zip-safe = true
+
+[tool.setuptools.dynamic]
+version = { attr = "docsource.__version__" }
+
+[tool.setuptools.package-data]
+"docsource" = ["py.typed"]
+
+[tool.ruff]
+line-length = 160
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "I", "Q"]
