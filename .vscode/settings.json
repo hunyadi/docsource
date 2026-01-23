@@ -17,8 +17,11 @@
     "python.analysis.typeCheckingMode": "strict",
     "cSpell.words": [
         "docsource",
+        "errorlevel",
         "Hunyadi",
         "Levente",
-        "seealso"
+        "seealso",
+        "setlocal",
+        "setuptools"
     ]
 }

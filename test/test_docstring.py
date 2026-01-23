@@ -11,7 +11,7 @@ import docsource.docstring
 import docsource.enumeration
 import docsource.inspection
 import docsource.source
-from docsource.docstring import check_docstring, has_default_docstring, has_docstring, parse_type
+from docsource.docstring import check_docstring, generate_google, generate_rest, has_default_docstring, has_docstring, parse_text, parse_type
 from docsource.enumeration import enum_labels
 from docsource.inspection import get_module_classes, get_module_functions
 from docsource.source import update_docstring
@@ -171,6 +171,44 @@ class SampleClass:
         pass
 
 
+@dataclass
+class ShortDescriptionAttributeClass:
+    """
+    Short description.
+
+    Attributes:
+        a: Short description for `a`.
+    """
+
+    a: int
+
+
+def google_style(id: int, line: str, enabled: bool) -> str:
+    """
+    Demonstrates Google-style doc-string.
+
+    Args:
+        id: A unique identifier
+            whose definition
+            spans multiple lines.
+
+        line: A single line of text.
+        enabled: A boolean value.
+
+    Raises:
+
+        RuntimeError: A more generic error.
+        ValueError: A more specific error
+            with a longer description.
+
+    Returns:
+        A string value
+        whose definition spans multiple lines.
+    """
+
+    return f"{id} {line} {enabled}"
+
+
 class TestDocstring(unittest.TestCase):
     def test_default_docstring(self) -> None:
         self.assertFalse(has_default_docstring(NoDescriptionClass))
@@ -225,23 +263,27 @@ class TestDocstring(unittest.TestCase):
         self.assertEqual(len(docstring.params), 1)
         self.assertEqual(docstring.params["a"].description, "Short description for `a`.")
         self.assertEqual(
-            str(docstring),
+            generate_rest(docstring),
             inspect.cleandoc(ShortDescriptionParameterClass.__doc__ or ""),
+        )
+
+        docstring = parse_type(ShortDescriptionAttributeClass)
+        self.assertEqual(docstring.short_description, "Short description.")
+        self.assertIsNone(docstring.long_description)
+        self.assertEqual(len(docstring.params), 1)
+        self.assertEqual(docstring.params["a"].description, "Short description for `a`.")
+        self.assertEqual(
+            generate_google(docstring),
+            inspect.cleandoc(ShortDescriptionAttributeClass.__doc__ or ""),
         )
 
         docstring = parse_type(MultiLineDescriptionParametersClass)
         self.assertEqual(docstring.short_description, "Short description.")
         self.assertEqual(docstring.long_description, "A description text that\nspans multiple lines.")
         self.assertEqual(len(docstring.params), 3)
-        self.assertEqual(
-            docstring.params["a"].description,
-            "Short description for `a`.",
-        )
+        self.assertEqual(docstring.params["a"].description, "Short description for `a`.")
         self.assertEqual(docstring.params["a"].param_type, int)
-        self.assertEqual(
-            docstring.params["b2"].description,
-            "Long description for `b` that spans multiple lines.",
-        )
+        self.assertEqual(docstring.params["b2"].description, "Long description for `b` that spans multiple lines.")
         self.assertEqual(docstring.params["b2"].param_type, str)
         self.assertEqual(docstring.params["c_3"].description, "Description for `c`.")
         self.assertEqual(docstring.params["c_3"].param_type, float)
@@ -278,27 +320,15 @@ class TestDocstring(unittest.TestCase):
         self.assertEqual(required(docstring.returns).description, "A return value.")
 
         self.assertEqual(len(docstring.raises), 3)
-        self.assertEqual(
-            docstring.raises["TypeError"].description,
-            "A type exception rarely raised.",
-        )
+        self.assertEqual(docstring.raises["TypeError"].description, "A type exception rarely raised.")
         self.assertEqual(docstring.raises["TypeError"].raise_type, TypeError)
-        self.assertEqual(
-            docstring.raises["ValueError"].description,
-            "A value exception rarely raised.",
-        )
+        self.assertEqual(docstring.raises["ValueError"].description, "A value exception rarely raised.")
         self.assertEqual(docstring.raises["ValueError"].raise_type, ValueError)
-        self.assertEqual(
-            docstring.raises["CustomException"].description,
-            "A custom exception.",
-        )
+        self.assertEqual(docstring.raises["CustomException"].description, "A custom exception.")
         self.assertEqual(docstring.raises["CustomException"].raise_type, CustomException)
 
         docstring = parse_type(SampleClass.other_instance_method)
-        self.assertEqual(
-            str(docstring),
-            inspect.cleandoc(SampleClass.other_instance_method.__doc__ or ""),
-        )
+        self.assertEqual(str(docstring), inspect.cleandoc(SampleClass.other_instance_method.__doc__ or ""))
 
         docstring = parse_type(SampleClass.class_method)
         self.assertEqual(docstring.short_description, "Short description of a class method.")
@@ -325,10 +355,32 @@ class TestDocstring(unittest.TestCase):
             enum_labels(EnumType), {"ENABLED": "Documents the enumeration member `ENABLED`.", "DISABLED": "Documents the enumeration member `DISABLED`."}
         )
 
+    def test_google(self) -> None:
+        docstring = parse_type(google_style)
+        self.assertEqual(docstring.short_description, "Demonstrates Google-style doc-string.")
+        self.assertEqual(len(docstring.params), 3)
+        self.assertEqual(docstring.params["id"].description, "A unique identifier whose definition spans multiple lines.")
+        self.assertEqual(docstring.params["line"].description, "A single line of text.")
+        self.assertEqual(docstring.params["enabled"].description, "A boolean value.")
+        self.assertIsNotNone(docstring.returns)
+        self.assertEqual(required(docstring.returns).description, "A string value whose definition spans multiple lines.")
+        self.assertEqual(len(docstring.raises), 2)
+        self.assertEqual(docstring.raises["RuntimeError"].description, "A more generic error.")
+        self.assertEqual(docstring.raises["ValueError"].description, "A more specific error with a longer description.")
+
     def test_normalize(self) -> None:
         source = Path(__file__).read_text(encoding="utf-8")
+
         source = update_docstring(source)
         target = update_docstring(source)
+        self.assertEqual(source, target)
+
+        source = update_docstring(source, parser=parse_text, generator=generate_rest)
+        target = update_docstring(source, parser=parse_text, generator=generate_rest)
+        self.assertEqual(source, target)
+
+        source = update_docstring(source, parser=parse_text, generator=generate_google)
+        target = update_docstring(source, parser=parse_text, generator=generate_google)
         self.assertEqual(source, target)
 
     def test_verify(self) -> None:

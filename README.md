@@ -6,7 +6,11 @@ A doc-string is broken down into the following components:
 
 * A short description, which is the first block of text in the documentation string, and ends with a double newline or a parameter block.
 * A long description, which is the optional block of text following the short description, and ends with a parameter block.
-* A parameter block of named parameter and description string pairs in ReST-style, each declared with `param`.
+* A structured signature specification block, either in reST or Google style.
+
+[reST-style specification blocks](https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#field-lists) consist of the following:
+
+* A parameter block of named parameter and description string pairs each declared with `param`.
 * A `returns` declaration, which adds explanation to the return value.
 * A `raises` declaration, which adds explanation to the exception type raised by the function on error.
 
@@ -22,6 +26,31 @@ class SampleClass:
         :raise TypeError: A type exception rarely raised.
         :raise ValueError: A value exception rarely raised.
         :raise CustomException: A custom exception.
+        """
+        return ""
+```
+
+In contrast, [Google-style specification blocks](https://github.com/google/styleguide/blob/gh-pages/pyguide.md) consist of:
+
+* The label `Arguments:`, followed by an indented list of parameters, each with their description.
+* The label `Returns:`, which captures the return value description in an indented block.
+* The label `Raises:`, followed by an indented list of exception types, each with their description.
+
+```py
+class SampleClass:
+    def instance_method(self, a: str, b: int | None) -> str:
+        """
+        Short description of an instance method.
+
+        Arguments:
+            a: Short description for `a`.
+            b: Short description for `b`.
+        Returns:
+            A return value.
+        Raises:
+            TypeError: A type exception rarely raised.
+            ValueError: A value exception rarely raised.
+            CustomException: A custom exception.
         """
         return ""
 ```
@@ -55,11 +84,11 @@ class EnumType(enum.Enum):
 
 ## Documentation style
 
-*docsource* can normalize code documentation by reading source code (with Python's `ast`), identifying doc-string literals, parsing doc-string text, and producing a standardized doc-string with short description, and ReST-style parameter, return value and exception declarations.
+*docsource* can normalize code documentation by reading source code (with Python's `ast`), identifying doc-string literals, parsing doc-string text, and producing a standardized doc-string with short description, and reST-style parameter, return value and exception declarations.
 
 ## Refer to the source
 
-* The function `parse_type` parses a ReST-style doc-string attached to a class or function into doc-string components, encapsulated in the class `Docstring`.
+* The function `parse_type` parses a reST-style doc-string attached to a class or function into doc-string components, encapsulated in the class `Docstring`.
 * The function `parse_text` parses raw doc-string text into its components.
 * `check_docstring` verifies data-class and function doc-string text.
 * `enum_labels` extracts textual description for enumeration members.

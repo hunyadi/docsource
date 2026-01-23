@@ -1,7 +1,7 @@
 """
 docsource: Parse, check and update doc-string documentation
 
-Copyright 2025, Levente Hunyadi
+Copyright 2025-2026, Levente Hunyadi
 
 :see: https://github.com/hunyadi/docsource
 """
@@ -12,6 +12,7 @@ from ast import AsyncFunctionDef, ClassDef, Constant, Expr, FunctionDef, Module
 from collections.abc import Callable
 from dataclasses import dataclass
 from io import StringIO
+from pathlib import Path
 
 from .docstring import Docstring, parse_text
 
@@ -119,17 +120,24 @@ def _get_docstring_span(
     return None
 
 
-def update_docstring(source: str, *, parser: Callable[[str], Docstring] | None = None) -> str:
+DocstringParser = Callable[[str], Docstring]
+DocstringGenerator = Callable[[Docstring], str]
+
+
+def update_docstring(source: str, *, parser: DocstringParser | None = None, generator: DocstringGenerator | None = None) -> str:
     """
-    Reads source code, identifies doc-string literals, parses doc-string text, and produces normalized (ReST-style) doc-string.
+    Reads source code, identifies doc-string literals, parses doc-string text, and produces normalized (reST-style or Google-style) doc-string.
 
     :param source: Python module source code as a string.
     :param parser: A parser that takes raw doc-string text and returns doc-string components.
+    :param generator: A generator that takes doc-string components and produces Python doc-string text.
     :returns: Source code with doc-string replacements made.
     """
 
     if parser is None:
         parser = parse_text
+    if generator is None:
+        generator = str
 
     tree = ast.parse(source)
     substitutions: list[Substitution] = []
@@ -154,7 +162,7 @@ def update_docstring(source: str, *, parser: Callable[[str], Docstring] | None =
     for item in substitutions:
         offset_span = OffsetSpan(item.span.start.offset(line_to_offset), item.span.end.offset(line_to_offset))
         s.write(source[pos : offset_span.start])
-        text = str(item.docstring)
+        text = generator(item.docstring)
         if "\n" in text:
             if '"""' not in text:
                 delimiter = '"""'
@@ -181,3 +189,22 @@ def update_docstring(source: str, *, parser: Callable[[str], Docstring] | None =
         pos = offset_span.end
     s.write(source[pos:])
     return s.getvalue()
+
+
+def normalize_file(source_path: Path, target_path: Path | None, *, parser: DocstringParser | None = None, generator: DocstringGenerator | None = None) -> None:
+    """
+    Reads a file, identifies doc-strings, parses doc-string text, produces normalized doc-string, and writes the updated code to a file.
+
+    :param source_path: Python source file to read.
+    :param target_path: Python source file to write. Defaults to source path (update in place).
+    :param parser: A parser that takes raw doc-string text and returns doc-string components.
+    :param generator: A generator that takes doc-string components and produces Python doc-string text.
+    :returns: Source code with doc-string replacements made.
+    """
+
+    if target_path is None:
+        target_path = source_path
+
+    source_text = source_path.read_text(encoding="utf-8")
+    target_text = update_docstring(source_text, parser=parser, generator=generator)
+    target_path.write_text(target_text, encoding="utf-8")
