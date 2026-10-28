@@ -14,14 +14,17 @@
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "charliermarsh.ruff"
     },
+    "mypy-type-checker.importStrategy": "fromEnvironment",
     "python.analysis.typeCheckingMode": "strict",
     "cSpell.words": [
         "docsource",
         "errorlevel",
         "Hunyadi",
         "Levente",
+        "PyPI",
         "seealso",
         "setlocal",
-        "setuptools"
+        "setuptools",
+        "Sigstore"
     ]
 }

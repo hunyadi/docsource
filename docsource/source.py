@@ -1,5 +1,5 @@
 """
-docsource: Parse, check and update doc-string documentation
+docsource: Parse, check and update doc-string documentation.
 
 Copyright 2025-2026, Levente Hunyadi
 
@@ -150,6 +150,7 @@ def update_docstring(source: str, *, parser: DocstringParser | None = None, gene
 
     substitutions.sort(key=lambda s: s.span.start)
 
+    # spellchecker: disable-next-line
     lines = source.splitlines(keepends=True)
     line_to_offset: list[int] = []
     rolling_sum: int = 0

@@ -27,8 +27,10 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Programming Language :: Python :: 3 :: Only",
     "Topic :: Documentation",
+    "Topic :: Software Development :: Documentation",
     "Topic :: Utilities",
     "Typing :: Typed"
 ]
@@ -36,14 +38,29 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = [
-    "build >= 1.4",
-    "mypy >= 1.19",
-    "ruff >= 0.14"
+    "build >= 1.6",
+    "mypy >= 2.4",
+    "ruff >= 0.17"
 ]
 
 [project.urls]
 "Homepage" = "https://github.com/hunyadi/docsource"
 "Source" = "https://github.com/hunyadi/docsource"
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+show_column_numbers = true
+strict = true
+strict_bytes = true
+strict_equality = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+warn_unused_ignores = true
 
 [tool.setuptools]
 include-package-data = true
@@ -60,4 +77,4 @@ version = { attr = "docsource.__version__" }
 line-length = 160
 
 [tool.ruff.lint]
-select = ["E", "F", "B", "I", "Q"]
+select = ["B", "C4", "D205", "D400", "E", "F", "I", "ISC", "PERF", "Q", "TID", "UP", "W"]

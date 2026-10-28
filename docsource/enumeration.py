@@ -1,5 +1,5 @@
 """
-docsource: Parse, check and update doc-string documentation
+docsource: Parse, check and update doc-string documentation.
 
 Copyright 2025-2026, Levente Hunyadi
 

@@ -1,5 +1,5 @@
 @echo off
-rem docsource: Parse, check and update doc-string documentation
+rem docsource: Parse, check and update doc-string documentation.
 rem
 rem Copyright 2025-2026, Levente Hunyadi
 rem https://github.com/hunyadi/docsource
@@ -10,15 +10,16 @@ set PYTHON_311="C:\Program Files\Python311\python.exe"
 set PYTHON_312="C:\Program Files\Python312\python.exe"
 set PYTHON_313="C:\Program Files\Python313\python.exe"
 set PYTHON_314="C:\Program Files\Python314\python.exe"
+set PYTHON=python3
 
 rem Run static type checker and verify formatting guidelines
-%PYTHON_314% -m ruff check
+%PYTHON% -m ruff check
 if errorlevel 1 goto error
-%PYTHON_314% -m ruff format --check
+%PYTHON% -m ruff format --check
 if errorlevel 1 goto error
-%PYTHON_314% -m mypy docsource
+%PYTHON% -m mypy docsource
 if errorlevel 1 goto error
-%PYTHON_314% -m mypy test
+%PYTHON% -m mypy tests
 if errorlevel 1 goto error
 
 if exist %PYTHON_310% %PYTHON_310% -m unittest discover
@@ -30,6 +31,8 @@ if errorlevel 1 goto error
 if exist %PYTHON_313% %PYTHON_313% -m unittest discover
 if errorlevel 1 goto error
 if exist %PYTHON_314% %PYTHON_314% -m unittest discover
+if errorlevel 1 goto error
+%PYTHON% -m unittest discover
 if errorlevel 1 goto error
 
 goto EOF

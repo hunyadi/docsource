@@ -1,5 +1,5 @@
 """
-docsource: Parse, check and update doc-string documentation
+docsource: Parse, check and update doc-string documentation.
 
 Copyright 2025-2026, Levente Hunyadi
 
@@ -11,11 +11,11 @@ import inspect
 import sys
 from enum import Enum
 from types import FunctionType, ModuleType
-from typing import TypeGuard
+from typing import Any, TypeGuard
 
 if sys.version_info >= (3, 11):
 
-    def is_type_enum(obj: object) -> TypeGuard[type[Enum]]:
+    def is_type_enum(obj: Any) -> TypeGuard[type[Enum]]:
         """
         True if the specified type is an enumeration type.
 
@@ -27,7 +27,7 @@ if sys.version_info >= (3, 11):
 
 else:
 
-    def is_type_enum(obj: object) -> TypeGuard[type[Enum]]:
+    def is_type_enum(obj: Any) -> TypeGuard[type[Enum]]:
         """
         True if the specified type is an enumeration type.
 
@@ -39,7 +39,7 @@ else:
         return isinstance(obj, type) and issubclass(obj, Enum)
 
 
-def is_exception(obj: object) -> TypeGuard[type[BaseException]]:
+def is_exception(obj: Any) -> TypeGuard[type[BaseException]]:
     """
     Checks whether an object is an exception type.
 
@@ -58,7 +58,7 @@ def get_exceptions(module: ModuleType) -> dict[str, type[BaseException]]:
     :returns: Exception classes declared in the specified module.
     """
 
-    return {name: class_type for name, class_type in inspect.getmembers(module, is_exception)}
+    return dict(inspect.getmembers(module, is_exception))
 
 
 def get_module_classes(module: ModuleType) -> list[type]:
@@ -69,7 +69,7 @@ def get_module_classes(module: ModuleType) -> list[type]:
     :returns: Classes declared in the specified module.
     """
 
-    def is_class_member(member: object) -> TypeGuard[type]:
+    def is_class_member(member: Any) -> TypeGuard[type]:
         return inspect.isclass(member) and member.__module__ == module.__name__
 
     return [class_type for _, class_type in inspect.getmembers(module, is_class_member)]
@@ -83,7 +83,7 @@ def get_module_functions(module: ModuleType) -> list[FunctionType]:
     :returns: Functions declared in the specified module.
     """
 
-    def is_function_member(member: object) -> TypeGuard[FunctionType]:
+    def is_function_member(member: Any) -> TypeGuard[FunctionType]:
         return inspect.isfunction(member) and member.__module__ == module.__name__
 
     return [func_type for _, func_type in inspect.getmembers(module, is_function_member)]

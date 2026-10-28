@@ -1,5 +1,5 @@
 """
-docsource: Parse, check and update doc-string documentation
+docsource: Parse, check and update doc-string documentation.
 
 Copyright 2025-2026, Levente Hunyadi
 
@@ -10,11 +10,12 @@ import builtins
 import dataclasses
 import inspect
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum, auto
 from io import StringIO
 from types import FunctionType
-from typing import Any, Callable, Protocol, TypeVar
+from typing import Any, Protocol, TypeVar
 
 from .inspection import get_exceptions, is_type_enum
 
@@ -326,8 +327,10 @@ def parse_text(text: str, *, style: DocstringStyle | None = None) -> Docstring:
         case DocstringStyle.REST:
             m = re.search("^:", text, flags=re.MULTILINE)
         case DocstringStyle.GOOGLE:
+            # spellchecker: disable-next-line
             m = re.search("^(?:Arg(?:ument)?s|Attributes|Raises|Returns):", text, flags=re.MULTILINE)
         case None:
+            # spellchecker: disable-next-line
             m = re.search("^(:|(?:Arg(?:ument)?s|Attributes|Raises|Returns):)", text, flags=re.MULTILINE)
     if m:
         desc_block = text[: m.start()]
@@ -676,10 +679,7 @@ def check_dataclass_docstring(typ: type[T], docstring: Docstring, strict: bool =
             for field in dataclasses.fields(base):
                 base_props.add(field.name)
 
-    properties: list[str] = []
-    for field in dataclasses.fields(typ):
-        if field.name not in base_props:
-            properties.append(field.name)
+    properties = [field.name for field in dataclasses.fields(typ) if field.name not in base_props]
 
     class_name = typ.__name__
 
