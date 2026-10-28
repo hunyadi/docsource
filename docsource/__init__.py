@@ -6,9 +6,9 @@ Copyright 2025-2026, Levente Hunyadi
 :see: https://github.com/hunyadi/docsource
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __author__ = "Levente Hunyadi"
-__copyright__ = "Copyright 2025, Levente Hunyadi"
+__copyright__ = "Copyright 2025-2026, Levente Hunyadi"
 __license__ = "MIT"
 __maintainer__ = "Levente Hunyadi"
 __status__ = "Production"
